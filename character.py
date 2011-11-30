@@ -6,6 +6,7 @@ import sitecustomize
 
 import os
 import math
+import field
 
 #module that has global variables
 import gv
@@ -16,7 +17,7 @@ class Character:
 
     def __init__(self, image_name):
 
-        self.field_image = self.split_field_image(self.load_image(image_name, -1))
+        self.field_image = self.split_field_image(self.load_image(image_name))#, -1))
 
         self.x = 0
         self.y = 0
@@ -29,6 +30,17 @@ class Character:
         #############################################
         # 基礎能力
         #############################################
+
+        #HP,MP,Stamina
+        self.max_hp = 0
+        self.max_mp = 0
+        self.max_st = 0
+
+        self.hp = 0
+        self.mp = 0
+        self.st = 0
+
+        #Gauge
 
         #力
         self.power = 0
@@ -46,9 +58,10 @@ class Character:
         self.intelligence = 0
 
         #動く早さ
-        self.walk_speed = 8
+        self.walk_speed = 6
+        #the speed that map loads without showing black = 12?
 
-        self.run_speed = 2
+        self.run_speed = 4
 
         #############################################
         # 武器
@@ -98,55 +111,143 @@ class Character:
         #農人
         self.farmer = 0
 
-    def update(self):
+    def update(self, map_object):
 
         #need function to move other party member?
 
-        pressed_keys = pygame.key.get_pressed()
-        self.moving = True
+        if map_object != None:
 
-        if pressed_keys[K_RIGHT] and pressed_keys[K_DOWN]:
-            self.direction = gv.DIRECTION_DOWN
-            self.x = self.x+(self.walk_speed / math.sqrt(2))
-            self.y = self.y+(self.walk_speed / math.sqrt(2))            
-        elif pressed_keys[K_RIGHT] and pressed_keys[K_UP]:
-            self.direction = gv.DIRECTION_UP
-            self.x = self.x+(self.walk_speed / math.sqrt(2))
-            self.y = self.y-(self.walk_speed / math.sqrt(2))
-        elif pressed_keys[K_LEFT] and pressed_keys[K_DOWN]:
-            self.direction = gv.DIRECTION_DOWN
-            self.x = self.x-(self.walk_speed / math.sqrt(2))
-            self.y = self.y+(self.walk_speed / math.sqrt(2))
-        elif pressed_keys[K_LEFT] and pressed_keys[K_UP]:
-            self.direction = gv.DIRECTION_UP
-            self.x = self.x-(self.walk_speed / math.sqrt(2))
-            self.y = self.y-(self.walk_speed / math.sqrt(2))
+            pressed_keys = pygame.key.get_pressed()
+            self.moving = True
 
-            
-        elif pressed_keys[K_DOWN]:
-            self.direction = gv.DIRECTION_DOWN
-            self.y = self.y+self.walk_speed
-               
-        elif pressed_keys[K_RIGHT]:
-            self.direction = gv.DIRECTION_RIGHT
-            self.x = self.x+self.walk_speed
-        elif pressed_keys[K_UP]:
-            self.direction = gv.DIRECTION_UP
-            self.y = self.y-self.walk_speed
-        elif pressed_keys[K_LEFT]:
-            self.direction = gv.DIRECTION_LEFT
-            self.x = self.x-self.walk_speed
-        else:
-            self.moving = False
+            if pressed_keys[K_RIGHT] and pressed_keys[K_DOWN]:
+                self.direction = gv.DIRECTION_DOWN
+                next_x = self.x+(self.walk_speed / math.sqrt(2))
+                next_y = self.y+(self.walk_speed / math.sqrt(2))            
+            elif pressed_keys[K_RIGHT] and pressed_keys[K_UP]:
+                self.direction = gv.DIRECTION_UP
+                next_x = self.x+(self.walk_speed / math.sqrt(2))
+                next_y = self.y-(self.walk_speed / math.sqrt(2))
+            elif pressed_keys[K_LEFT] and pressed_keys[K_DOWN]:
+                self.direction = gv.DIRECTION_DOWN
+                next_x = self.x-(self.walk_speed / math.sqrt(2))
+                next_y = self.y+(self.walk_speed / math.sqrt(2))
+            elif pressed_keys[K_LEFT] and pressed_keys[K_UP]:
+                self.direction = gv.DIRECTION_UP
+                next_x = self.x-(self.walk_speed / math.sqrt(2))
+                next_y = self.y-(self.walk_speed / math.sqrt(2))
 
-        self.image_frame = self.image_frame + 1
+                
+            elif pressed_keys[K_DOWN]:
+                self.direction = gv.DIRECTION_DOWN
+                next_x = self.x
+                next_y = self.y+self.walk_speed             
+            elif pressed_keys[K_RIGHT]:
+                self.direction = gv.DIRECTION_RIGHT
+                next_x = self.x+self.walk_speed
+                next_y = self.y
+            elif pressed_keys[K_UP]:
+                self.direction = gv.DIRECTION_UP
+                next_x = self.x
+                next_y = self.y-self.walk_speed
+            elif pressed_keys[K_LEFT]:
+                self.direction = gv.DIRECTION_LEFT
+                next_x = self.x-self.walk_speed
+                next_y = self.y
+            else:
+                self.moving = False
+
+            if self.moving:
+                #find the field the character is going to be in.
+                field_num = None
+
+                #also adjust the x,y to the field
+                if next_x < 0 and next_y < 0:
+                    next_x += gv.MAPSIZE
+                    next_y += gv.MAPSIZE
+                    field_num  = 0
+                elif next_x < 0 and next_y >= gv.MAPSIZE:
+                    next_x += gv.MAPSIZE
+                    next_y -= gv.MAPSIZE                    
+                    field_num  = 6
+                elif next_x >= gv.MAPSIZE and next_y < 0:
+                    next_x -= gv.MAPSIZE
+                    next_y += gv.MAPSIZE
+                    field_num  = 2
+                elif next_x >= gv.MAPSIZE and next_y >= gv.MAPSIZE:
+                    next_x -= gv.MAPSIZE
+                    next_y -= gv.MAPSIZE
+                    field_num  = 8
+                elif next_x < 0:
+                    next_x += gv.MAPSIZE
+                    field_num  = 3
+                elif next_x >= gv.MAPSIZE:
+                    next_x -= gv.MAPSIZE
+                    field_num  = 5
+                elif next_y < 0:
+                    next_y += gv.MAPSIZE
+                    field_num  = 1
+                elif next_y >= gv.MAPSIZE:
+                    next_y -= gv.MAPSIZE
+                    field_num  = 7
+                else:
+                    field_num  = 4
+
+                current_field = None
+                
+                for field_map in map_object.other_map:
+                    if field_num  == field_map.field_number:
+                        current_field  = field_map
+
+                if not isinstance(current_field, field.Field):
+                    return
+
+                #check if the field is movable
+                if current_field.is_movable(next_x, next_y, self.direction):
+                    #self.x = next_x
+                    #self.y = next_y
+
+                    if pressed_keys[K_RIGHT] and pressed_keys[K_DOWN]:
+                        self.x = self.x+(self.walk_speed / math.sqrt(2))
+                        self.y = self.y+(self.walk_speed / math.sqrt(2))            
+                    elif pressed_keys[K_RIGHT] and pressed_keys[K_UP]:
+                        self.x = self.x+(self.walk_speed / math.sqrt(2))
+                        self.y = self.y-(self.walk_speed / math.sqrt(2))
+                    elif pressed_keys[K_LEFT] and pressed_keys[K_DOWN]:
+                        self.x = self.x-(self.walk_speed / math.sqrt(2))
+                        self.y = self.y+(self.walk_speed / math.sqrt(2))
+                    elif pressed_keys[K_LEFT] and pressed_keys[K_UP]:
+                        self.x = self.x-(self.walk_speed / math.sqrt(2))
+                        self.y = self.y-(self.walk_speed / math.sqrt(2))  
+                    elif pressed_keys[K_DOWN]:
+                        self.x = self.x
+                        self.y = self.y+self.walk_speed             
+                    elif pressed_keys[K_RIGHT]:
+                        self.x = self.x+self.walk_speed
+                        self.y = self.y
+                    elif pressed_keys[K_UP]:
+                        self.x = self.x
+                        self.y = self.y-self.walk_speed
+                    elif pressed_keys[K_LEFT]:
+                        self.x = self.x-self.walk_speed
+                        self.y = self.y
+                else:
+                    pass
+                    #self.x = (int)(next_x/current_field.chip_width)*current_field.chip_width
+                    #self.y = (int)(next_y/current_field.chip_height)*current_field.chip_height
+                
+
+
+                
+
+            self.image_frame = self.image_frame + 1
 
             
     def render(self, screen):
         if (self.moving == False):
-            screen.blit(self.field_image[self.direction*3], (self.x,self.y))
+            screen.blit(self.field_image[self.direction*3], (gv.SCREEN_WIDTH/2-gv.IMAGE_SIZE/2,gv.SCREEN_HEIGHT/2-gv.IMAGE_SIZE))
         else:
-            screen.blit(self.field_image[self.image_frame/(20-self.walk_speed)%3+self.direction*3], (self.x,self.y))
+            screen.blit(self.field_image[self.image_frame/(20-self.walk_speed)%3+self.direction*3], (gv.SCREEN_WIDTH/2-gv.IMAGE_SIZE/2,gv.SCREEN_HEIGHT/2-gv.IMAGE_SIZE))
         
 
     def load_image(self,image_name, color_key = None):
@@ -174,6 +275,9 @@ class Character:
             for i in  range(0,3):
                 surface = pygame.Surface((gv.IMAGE_SIZE, gv.IMAGE_SIZE))
                 surface.blit(image, (0,0), (i*gv.IMAGE_SIZE,j*gv.IMAGE_SIZE,gv.IMAGE_SIZE, gv.IMAGE_SIZE))
+
+                surface.set_colorkey(surface.get_at((0,0)), RLEACCEL)
+
                 surface.convert()
                 image_list.append(surface)
         return image_list

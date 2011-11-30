@@ -1,0 +1,8 @@
+north_map:forest_1
+east_map:forest_1
+south_map:town_test1
+west_map:forest_1
+
+building(x,y):
+
+map_chip:road01_a

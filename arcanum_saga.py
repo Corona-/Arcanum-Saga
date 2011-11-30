@@ -9,7 +9,7 @@ import sys
 import title
 
 import character
-
+import thread
 
 #module that has global variables
 import gv
@@ -26,6 +26,8 @@ class arcanum_saga:
         #creates window of SCREEN_RECTANGLE
         self.screen = pygame.display.set_mode(gv.SCREEN_RECTANGLE.size)
 
+        #draw party as sprite
+
         #stores characters in party
         self.party = []
 
@@ -35,7 +37,7 @@ class arcanum_saga:
         #initialize game state
         self.title = title.Title()
         self.character_make = None
-        self.field = None
+        self.map = None
 
         #set the title of the program (on left-top bar)
         pygame.display.set_caption("Arcanum SaGa")
@@ -71,9 +73,9 @@ class arcanum_saga:
             self.title.update()
         elif self.game_state == gv.CHARACTER_MAKE:
             self.character_make.update()
-        elif self.game_state == gv.FIELD:
-            self.party[0].update()
-            self.field.update()
+        elif self.game_state == gv.MAP:
+            self.party[0].update(self.map)
+            self.map.update(self.party)
  
         pass
 
@@ -87,8 +89,8 @@ class arcanum_saga:
             self.title.render(self.screen)
         elif self.game_state == gv.CHARACTER_MAKE:
             self.character_make.render(self.screen)
-        elif self.game_state == gv.FIELD:
-            self.field.render(self.party,self.screen)
+        elif self.game_state == gv.MAP:
+            self.map.render(self.party,self.screen)
 
     def check_event(self):
 
@@ -105,8 +107,8 @@ class arcanum_saga:
                 self.title.event_handler(event, self)
             elif self.game_state == gv.CHARACTER_MAKE:
                 self.character_make.event_handler(event, self)
-            elif self.game_state == gv.FIELD:
-                self.field.event_handler(event, self)
+            elif self.game_state == gv.MAP:
+                self.map.event_handler(event, self)
 
 
 

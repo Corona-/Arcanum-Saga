@@ -21,7 +21,32 @@ DIRECTION_DOWN = 0
 DIRECTION_LEFT = 1
 DIRECTION_RIGHT = 2
 DIRECTION_UP = 3
+DIRECTION_UPLEFT = 4
+DIRECTION_UPRIGHT = 5
+DIRECTION_DOWNLEFT = 6
+DIRECTION_DOWNRIGHT = 7
 
+#######################################
+# Variables for the map
+#######################################
+TOPLEFT = 0
+TOPCENTER = 1
+TOPRIGHT = 2
+MIDDLELEFT = 3
+MIDDLECENTER = 4
+MIDDLERIGHT = 5
+BELOWLEFT = 6
+BELOWCENTER = 7
+BELOWRIGHT = 8
+
+MAPSIZE = 800
+
+#pass
+#add 1 if cannot pass from top
+#add 2 if cannot pass from right
+#add 4 if cannot pass from down
+#add 8 if cannot pass from left
+#if map comes above character, it is negative
 
 
 #######################################
@@ -30,7 +55,7 @@ DIRECTION_UP = 3
 
 TITLE = 0
 CHARACTER_MAKE = 1
-FIELD = 2
+MAP = 2
 
 #######################################
 # Variables for the character make
@@ -83,6 +108,8 @@ DEATH = 12
 #######################################
 
 SCREEN_RECTANGLE = Rect(0,0,640,480)
+SCREEN_WIDTH = 640
+SCREEN_HEIGHT = 480
 
 #######################################
 # Variables for the color

@@ -7,6 +7,8 @@ import sitecustomize
 import character_make
 import field
 
+import map
+
 #module that has global variables
 import gv
 #module that has global functions
@@ -80,9 +82,9 @@ class Title:
                 #arcanum_saga.title = None
                 #arcanum_saga.character_make = character_make.Character_make()
                 
-                arcanum_saga.game_state = gv.FIELD
+                arcanum_saga.game_state = gv.MAP
                 arcanum_saga.title = None
-                arcanum_saga.field = field.Field("town_test1.fmf")
+                arcanum_saga.map = map.Map("town_test1")
                        
             elif self.menu == self.LOADGAME:
                 pass
